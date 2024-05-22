@@ -1,8 +1,8 @@
-from flask import Flask, request, jsonify
-import torch
-from transformers import AutoTokenizer, AutoModelForTokenClassification
 import logging
 from logging.handlers import RotatingFileHandler
+import torch
+from flask import Flask, request, jsonify, render_template
+from transformers import AutoTokenizer, AutoModelForTokenClassification
 
 # Set up logging
 log_formatter = logging.Formatter('%(asctime)s - %(message)s')
@@ -19,6 +19,7 @@ tokenizer = AutoTokenizer.from_pretrained('roberta-base', add_prefix_space=True)
 model = AutoModelForTokenClassification.from_pretrained(path, local_files_only=True)
 
 model.eval()
+
 
 def align_predictions_with_words(words, token_predictions, offsets):
     word_predictions = []
@@ -41,6 +42,12 @@ def align_predictions_with_words(words, token_predictions, offsets):
         word_predictions.append((words[word_idx], max(set(current_labels), key=current_labels.count)))
 
     return word_predictions
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 
 @app.route('/predict', methods=['POST'])
 def predict():
@@ -67,9 +74,12 @@ def predict():
         label_predictions = [id2label[pred] for pred in predictions]
 
         # Remove special tokens (CLS, SEP, etc.)
-        special_tokens_mask = tokenizer.get_special_tokens_mask(input_ids.squeeze().tolist(), already_has_special_tokens=True)
+        special_tokens_mask = tokenizer.get_special_tokens_mask(input_ids.squeeze().tolist(),
+                                                                already_has_special_tokens=True)
         filtered_predictions = [label for label, mask in zip(label_predictions, special_tokens_mask) if mask == 0]
-        filtered_tokens = [token for token, mask in zip(tokenizer.convert_ids_to_tokens(input_ids.squeeze().tolist()), special_tokens_mask) if mask == 0]
+        filtered_tokens = [token for token, mask in
+                           zip(tokenizer.convert_ids_to_tokens(input_ids.squeeze().tolist()), special_tokens_mask) if
+                           mask == 0]
         filtered_offsets = [offset for offset, mask in zip(offsets, special_tokens_mask) if mask == 0]
 
         # Align predictions with words
@@ -84,6 +94,7 @@ def predict():
         return jsonify({'predictions': [{word: label} for word, label in word_predictions]})
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)

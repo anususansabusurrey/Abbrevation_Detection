@@ -77,11 +77,7 @@
             if (data.error) {
                 document.getElementById('result').innerText = 'Error: ' + data.error;
             } else {
-                const predictions = data.predictions.map(prediction => {
-                    const word = Object.keys(prediction)[0];
-                    const label = prediction[word];
-                    return ${word}: ${label};
-                }).join(', ');
+                const predictions = data.predictions.map(prediction => `${Object.keys(prediction)[0]}: ${Object.values(prediction)[0]}`).join(', ');
                 document.getElementById('result').innerText = 'Predictions: ' + predictions;
             }
         }

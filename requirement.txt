@@ -1,4 +1,3 @@
-requests
 locust
 logging
 torch

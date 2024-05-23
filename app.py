@@ -70,7 +70,7 @@ def predict():
         predictions = torch.argmax(outputs.logits, dim=2).squeeze().tolist()
 
         # Convert prediction indices to labels
-        id2label = {0: "B-O", 1: "B-AC", 2: "B-LF", 3: "I-LF"}
+        id2label = {0: "B-O", 1: "B-AC", 2: "I-AC", 3: "B-LF", 4:"I-LF"}
         label_predictions = [id2label[pred] for pred in predictions]
 
         # Remove special tokens (CLS, SEP, etc.)

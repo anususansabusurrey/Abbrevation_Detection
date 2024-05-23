@@ -19,4 +19,4 @@ class AbbreviationDetectionUser(HttpUser):
 
 if __name__ == "__main__":
     import os
-    os.system("locust -f locustfile.py --host http://0.0.0.0:5001")
+    os.system("locust -f locustfile.py --host http://127.0.0.1:5001")

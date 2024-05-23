@@ -56,6 +56,10 @@ jobs:
         ls -la  # list files to ensure requirement.txt is present
         pip install -r requirement.txt
 
+    - name: Install pytest
+      run: |
+        pip install pytest
+
     - name: Run Flask app
       run: |
         nohup python app.py &
@@ -65,7 +69,7 @@ jobs:
 
     - name: Test API
       run: |
-        python test_api.py
+        pytest test_api.py
 
     - name: Stop Flask app
       run: |

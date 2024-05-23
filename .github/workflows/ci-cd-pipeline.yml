@@ -56,7 +56,7 @@ jobs:
         ls -la  # list files to ensure requirement.txt is present
         pip install -r requirement.txt
 
-    - name: Install pytest
+    - name: Install pytest explicitly
       run: |
         pip install pytest
 

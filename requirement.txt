@@ -1,4 +1,7 @@
-transformers==4.11.3
-flask==2.0.1
+requests
+locust
+jsonimport
+logging
 torch
-locust==2.5.0
+flask
+transformers

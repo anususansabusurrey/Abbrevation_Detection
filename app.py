@@ -12,13 +12,10 @@ log_handler.setLevel(logging.INFO)
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 app.logger.addHandler(log_handler)
-
 path = "model"
 tokenizer = AutoTokenizer.from_pretrained('roberta-base', add_prefix_space=True)
 model = AutoModelForTokenClassification.from_pretrained(path, local_files_only=True)
-
 model.eval()
-
 def align_predictions_with_words(words, token_predictions, offsets):
     word_predictions = []
     current_labels = []
@@ -57,14 +54,11 @@ def predict():
         attention_mask = inputs["attention_mask"]
         offsets = inputs["offset_mapping"].squeeze().tolist()
 
-        # Perform prediction
         with torch.no_grad():
             outputs = model(input_ids=input_ids, attention_mask=attention_mask)
 
-        # Get the prediction for each token
         predictions = torch.argmax(outputs.logits, dim=2).squeeze().tolist()
 
-        # Convert prediction indices to labels
         id2label = {0: "B-O", 1: "B-AC", 2: "I-AC", 3: "B-LF", 4: "I-LF"}
         label_predictions = [id2label[pred] for pred in predictions]
 
@@ -73,15 +67,12 @@ def predict():
         filtered_predictions = [label for label, mask in zip(label_predictions, special_tokens_mask) if mask == 0]
         filtered_offsets = [offset for offset, mask in zip(offsets, special_tokens_mask) if mask == 0]
 
-        # Align predictions with words
         words = text.split()
         word_predictions = align_predictions_with_words(words, filtered_predictions, filtered_offsets)
-
 
         log_message = f"Input: {text} | Predictions: {word_predictions}"
         app.logger.info(log_message)
 
-        # Return the result as JSON
         return jsonify({'predictions': [{word: label} for word, label in word_predictions]})
     except Exception as e:
         app.logger.error(f"Error: {str(e)}")

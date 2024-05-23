@@ -56,10 +56,6 @@ jobs:
         ls -la  # list files to ensure requirement.txt is present
         pip install -r requirement.txt
 
-    - name: Install pytest explicitly
-      run: |
-        pip install pytest
-
     - name: Run Flask app
       run: |
         nohup python app.py &
